@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/sharukat/swanlake/controllers"
-	"github.com/sharukat/swanlake/models"
 )
 
 type SwanLakeApp struct {
@@ -41,14 +41,14 @@ func (app *SwanLakeApp) Start(ctx context.Context) error {
 	}
 	err := server.ListenAndServe()
 	if err != nil {
-		return fmt.Errorf("failed to start server: %w", err)
+		log.Panic("Failed to start server: %w", err)
 	}
 	return nil
 }
 
 func main() {
 	godotenv.Load("../.env")
-	models.ConnectDatabase()
+	// mongo.ConnectDatabase()
 	app := NewApp()
 	err := app.Start(context.TODO())
 	if err != nil {

@@ -1,4 +1,4 @@
-package models
+package mongo
 
 import (
 	"context"
@@ -11,9 +11,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var mongoClient *mongo.Client
+// var mongoClient *mongo.Client
 
-func ConnectDatabase() error {
+func InitMongoClient() *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	clientOption := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
@@ -28,7 +28,7 @@ func ConnectDatabase() error {
 		log.Fatal("failed to ping MongoDB: ", err)
 	}
 
-	mongoClient = client
+	// mongoClient = client
 	fmt.Println("Connected to MongoDB!")
-	return nil
+	return client
 }

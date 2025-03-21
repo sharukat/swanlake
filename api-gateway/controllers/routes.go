@@ -5,7 +5,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sharukat/swanlake/models"
+	"github.com/sharukat/swanlake/services/google"
+	"github.com/sharukat/swanlake/services/mongo"
 )
 
 func LoadRoutes() *chi.Mux {
@@ -15,14 +16,18 @@ func LoadRoutes() *chi.Mux {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	router.Route("/mongodb", loadMongoDBRoutes)
+	router.Route("/api", loadServiceRoutes)
 	return router
 }
 
-func loadMongoDBRoutes(router chi.Router) {
-	mongoDBHandler := models.MongoDBHandler{}
-	// router.Post("/", mongoDBHandler.Create)
-	router.Get("/list/{name}", mongoDBHandler.List)
-	// router.Put("/{name}", mongoDBHandler.UpdateByName)
-	// router.Delete("/{name}", mongoDBHandler.DeleteByName)
+func loadServiceRoutes(router chi.Router) {
+	mongoClient := mongo.InitMongoClient()
+
+	// Handlers
+	mongoDBHandler := mongo.InitDB(mongoClient)
+
+	// Routes
+	router.Get("/mongo/list/{collection}", mongoDBHandler.List)
+	router.Get("/mongo/{collection}/{name}", mongoDBHandler.GetByName)
+	router.Get("/images/{name}", google.GetImages)
 }

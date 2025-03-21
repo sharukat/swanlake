@@ -23,8 +23,8 @@ interface AppCardProps {
 }
 
 export default function AppCard({ imagePath, buttonName }: AppCardProps) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { names, fetchNames } = useCollections();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { names, fetchNames, generate } = useCollections();
   const [collection, setCollection] = useState<string>(() => { return "" });
 
   const handlePress = async (buttonName: string) => {
@@ -38,6 +38,11 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
       console.error("Invalid button name");
     }
     onOpen();
+  }
+
+  const handleItemPress = async (name: string) => {
+    await generate(collection, name);
+    onClose();
   }
 
   return (
@@ -63,9 +68,9 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
                 <p className="font-light">Below is a list of {collection} found in Swanlake Park. Click on any to get more information.</p>
               </DrawerHeader>
               <DrawerBody>
-                <Listbox aria-label="Actions" onAction={(key) => alert(key)}>
+                <Listbox aria-label="Actions">
                   {names.map((name) => (
-                    <ListboxItem key={name}>{name}</ListboxItem>
+                    <ListboxItem key={name} onPress={() => handleItemPress(name)}>{name}</ListboxItem>
                   ))}
                 </Listbox>
               </DrawerBody>

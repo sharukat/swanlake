@@ -19,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 @app.post("/fetch")
 def run_agent():
     print("Hello from llm-service!")
