@@ -14,8 +14,9 @@ import {
   Listbox,
   ListboxItem
 } from "@heroui/react";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useCollections } from "../hooks/use-collections";
+import Context from "@/contexts/context";
 
 interface AppCardProps {
   imagePath: string;
@@ -23,17 +24,17 @@ interface AppCardProps {
 }
 
 export default function AppCard({ imagePath, buttonName }: AppCardProps) {
+  const context = useContext(Context);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { names, fetchNames, generate } = useCollections();
   const [collection, setCollection] = useState<string>(() => { return "" });
 
   const handlePress = async (buttonName: string) => {
     if (buttonName === "Explore Birds") {
       setCollection("birds");
-      await fetchNames("birds");
+      await context.fetchNames("birds");
     } else if (buttonName === "Explore Plants") {
       setCollection("plants");
-      await fetchNames("plants");
+      await context.fetchNames("plants");
     } else {
       console.error("Invalid button name");
     }
@@ -41,7 +42,8 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
   }
 
   const handleItemPress = async (name: string) => {
-    await generate(collection, name);
+    await context.generate(collection, name);
+    context.setName(name);
     onClose();
   }
 
@@ -69,7 +71,7 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
               </DrawerHeader>
               <DrawerBody>
                 <Listbox aria-label="Actions">
-                  {names.map((name) => (
+                  {context.names.map((name) => (
                     <ListboxItem key={name} onPress={() => handleItemPress(name)}>{name}</ListboxItem>
                   ))}
                 </Listbox>

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -70,41 +69,42 @@ func (h *MongoDBHandler) GetCollection(name string) *mongo.Collection {
 func (h *MongoDBHandler) List(w http.ResponseWriter, r *http.Request) {
 	collectionName := chi.URLParam(r, "collection")
 	collection := h.GetCollection(collectionName)
-	fmt.Println(collection)
+	ctx := r.Context()
 
 	opts := options.Find().SetSort(bson.D{{Key: "Common Name", Value: 1}})
-	cursor, err := collection.Find(h.Context, bson.D{}, opts)
+	cursor, err := collection.Find(ctx, bson.D{}, opts)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to query database: %v", err), http.StatusInternalServerError)
 		return
 	}
+	defer cursor.Close(h.Context)
 
 	var results []MongoDBDocument
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		log.Panic(err)
+	if err = cursor.All(ctx, &results); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to decode results: %v", err), http.StatusInternalServerError)
+		return
 	}
 
 	var commonNames []string
 	for _, result := range results {
 		commonNames = append(commonNames, result.CommonName)
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(commonNames)
 }
 
-func (h *MongoDBHandler) GetByName(w http.ResponseWriter, r *http.Request) {
+func (h *MongoDBHandler) GetByName(w http.ResponseWriter, r *http.Request) (MongoBird, error) {
 	collectionName := chi.URLParam(r, "collection")
 	itemName := chi.URLParam(r, "name")
+	ctx := r.Context()
 
 	collection := h.GetCollection(collectionName)
 	filter := bson.D{{Key: "Common Name", Value: itemName}}
 
 	var result MongoBird
-	err := collection.FindOne(h.Context, filter).Decode(&result)
+	err := collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		log.Panic(err)
+		return MongoBird{}, err
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	return result, nil
 }
