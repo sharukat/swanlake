@@ -1,25 +1,63 @@
-import os
+import json
+import uvicorn
 import logging
 from dotenv import load_dotenv
-from fastapi import FastAPI, BackgroundTasks
+from pydantic import BaseModel
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, JSONResponse
+from src.generate import ResponseGenerator
+from src.tools import web_search
 
 load_dotenv(dotenv_path="../.env")
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"{os.environ.get("FRONTEND_ADRESS")}"],
+    allow_origins=["*"],
     allow_credentials=False,  # Must be False when allow_origins=["*"]
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
 
 
-@app.post("/fetch")
-def run_agent():
-    print("Hello from llm-service!")
+class LLMInput(BaseModel):
+    collection: str
+    item: str
+    db_data: dict
+
+
+@app.post("/ai/generate")
+async def root(request: Request) -> JSONResponse:
+    try:
+        data = await request.json()
+        data = LLMInput(**data)
+        validated_data = data.model_dump()
+        db_data = validated_data['db_data']
+        web_data = web_search(data.collection, data.item)
+
+        return JSONResponse(content=web_data, status_code=200)
+    except Exception as e:
+        logger.error(f"Error in request: {e}")
+        return JSONResponse(content="Error in request", status_code=500)
+
+
+@app.post("/ai/generate")
+async def generate_resonse(input_data: LLMInput) -> JSONResponse:
+    web_data = None
+    response = ResponseGenerator().generate(
+        search_item=input_data.item,
+        db_data=input_data.db_data,
+        web_data=web_data,
+    )
+    logger.info("Response generation successful")
+    return JSONResponse(content=response, status_code=200)
+
+if __name__ == "__main__":
+    try:
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+    except Exception as e:
+        print(f"Failed to start server: {e}")
