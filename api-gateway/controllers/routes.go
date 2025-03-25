@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sharukat/swanlake/services"
 	"github.com/sharukat/swanlake/services/ai"
-	"github.com/sharukat/swanlake/services/google"
 	"github.com/sharukat/swanlake/services/mongo"
 	"github.com/sharukat/swanlake/utilities"
 )
 
 type CombinedResult struct {
-	BirdInfo mongo.MongoBird `json:"bird_info"`
-	Images   []string        `json:"images"`
-	// AIResponse interface{}     `json:"ai_response"`
+	Response string   `json:"response"`
+	Images   []string `json:"images"`
 }
 
 func LoadRoutes() *chi.Mux {
@@ -64,14 +64,34 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 		err    error
 	}
 
+	type searchStruct struct {
+		result string
+		err    error
+	}
+
 	type aiResponse struct {
 		response string
 		err      error
 	}
 
+	type Result struct {
+		URL     string `json:"url"`
+		Content string `json:"content"`
+	}
+
+	type Response struct {
+		Query             string        `json:"query"`
+		FollowUpQuestions interface{}   `json:"follow_up_questions"`
+		Answer            string        `json:"answer"`
+		Images            []interface{} `json:"images"`
+		Results           []Result      `json:"results"`
+		ResponseTime      float64       `json:"response_time"`
+	}
+
 	// Create channels for goroutines
 	dbChannel := make(chan dbStruct)
 	imageChannel := make(chan imageStruct)
+	searchChannel := make(chan searchStruct)
 	aiChannel := make(chan aiResponse)
 
 	go func(ch chan<- dbStruct) {
@@ -83,22 +103,38 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 	}(dbChannel)
 
 	go func(ch chan<- imageStruct) {
-		images, err := google.GetImages(w, r)
+		images, err := services.GetImages(w, r)
 		ch <- imageStruct{images, err}
 		if err != nil {
 			log.Fatal(err)
 		}
 	}(imageChannel)
 
+	go func(ch chan<- searchStruct) {
+		results, err := services.WebSearch(collection, item)
+		ch <- searchStruct{results, err}
+	}(searchChannel)
+
 	dbResult := <-dbChannel
-	// dbMaped, err := utilities.StructToMap(dbResult.birdInfo)
-	// if err != nil {
-	// 	log.Printf("Error converting struct to map: %v", err)
-	// }
+	searchResult := <-searchChannel
+
+	var data Response
+	err := json.Unmarshal([]byte(searchResult.result), &data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	urlSet := make(map[string]bool)
+	var contents []string
+	for _, result := range data.Results {
+		urlSet[result.URL] = true
+		contents = append(contents, result.Content)
+	}
+	context := strings.Join(contents, "\n")
 
 	go func(ch chan<- aiResponse) {
 		dbMaped, err := utilities.StructToMap(dbResult.birdInfo)
-		fmt.Printf("Converted DBMap: %+v\n", dbMaped)
 		if err != nil {
 			log.Printf("Error converting struct to map: %v", err)
 		}
@@ -106,6 +142,7 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 			Collection: collection,
 			Item:       item,
 			DBData:     dbMaped,
+			Context:    context,
 		})
 		if err != nil {
 			log.Printf("Error fetching from AI service: %v", err)
@@ -114,7 +151,7 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 	}(aiChannel)
 
 	aiResult := <-aiChannel
-	fmt.Println(aiResult.response)
+	// fmt.Println(aiResult.response)
 	imageResult := <-imageChannel
 
 	if dbResult.err != nil {
@@ -133,9 +170,8 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 	}
 
 	result := CombinedResult{
-		BirdInfo: dbResult.birdInfo,
+		Response: aiResult.response,
 		Images:   imageResult.images,
-		// AIResponse: aiResult.assistantRes,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

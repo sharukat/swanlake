@@ -13,6 +13,7 @@ type InputData struct {
 	Collection string            `json:"collection"`
 	Item       string            `json:"item"`
 	DBData     map[string]string `json:"db_data"`
+	Context    string            `json:"context"`
 }
 
 func GetAssistant(data InputData) (string, error) {

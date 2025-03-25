@@ -6,23 +6,33 @@ import { LayoutImageGrid } from "@/components/ImageGrid";
 import { ImagesSliderComp } from "@/components/imageSlider";
 import Context from "@/contexts/context";
 import { useCollections } from "@/hooks/use-collections";
+import { Spinner } from "@heroui/react";
 
 export default function Home() {
-  const { names, images, fetchNames, generate } = useCollections();
+  const { names, images, setImages, response, setResponse, fetchNames, generate } = useCollections();
   const [name, setName] = useState<string>(() => { return "" });
+  const [status, setStatus] = useState<boolean>(() => { return false });
 
   useEffect(() => {
-    console.log("Images updated:", images);
-  }, [images]);
+    if (response !== "") {
+      setStatus(false);
+    }
+  }, [response]);
+
 
   return (
     <Context.Provider value={{
       names,
+      response,
+      setResponse,
       fetchNames,
       generate,
       images,
+      setImages,
       name,
       setName,
+      status,
+      setStatus
     }}>
       <section key="home" className="w-full flex flex-col items-center justify-center px-auto">
         <ImagesSliderComp />
@@ -43,16 +53,41 @@ export default function Home() {
           </div>
         </div>
 
+        {(status) && (
+          <div className="flex flex-col items-center justify-center">
+            <Spinner classNames={{ label: "text-foreground mt-4" }} label="Processing" variant="wave" size="lg" />
+          </div>
+        )}
+
         {(name !== "") && (
           <h2 className="font-semibold text-center text-2xl p-5 mt-10">{name}</h2>
         )}
-        <div className="w-full mt-10">
-          {(images.length > 0) && (
+        {(response !== "") && (
+          <div className="flex max-w-7xl items-center justify-center bg-gray-100 rounded-2xl w-full">
+            <p className="text-gray-600 text-xl font-light text-justify p-10">
+              {transformString(response)}
+            </p>
+          </div>
+        )}
+
+        {(images.length > 0) && (
+          <div className="flex w-full mt-10 items-center justify-center px-auto">
             <LayoutImageGrid />
-          )}
-        </div>
+          </div>
+        )}
+
 
       </section >
     </Context.Provider>
   );
+}
+
+function transformString(input: string): string {
+  // Remove double quotes from the beginning and end of the string
+  let transformed = input.replace(/^"|"$/g, '');
+  
+  // Replace escaped newline characters with actual newlines
+  transformed = transformed.replace(/\\n/g, '\n\n');
+  
+  return transformed;
 }

@@ -42,9 +42,13 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
   }
 
   const handleItemPress = async (name: string) => {
+    context.setStatus(true);
+    context.setResponse("");
+    context.setName("");
+    context.setImages([]);
+    onClose();
     await context.generate(collection, name);
     context.setName(name);
-    onClose();
   }
 
   return (

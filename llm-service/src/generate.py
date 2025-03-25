@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-from langchain_ollama import ChatOllama
+from functools import lru_cache
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -13,32 +14,28 @@ logger = logging.getLogger(__name__)
 load_dotenv(dotenv_path="../.env")
 
 
+@lru_cache(maxsize=None)
 class InitModel:
-    """Manages the initialization and the access to the LLM instance."""
+    """Manages the initialization and the access to the LLM instance.
+    LRU cache is used to make the class singleton.
+    """
 
-    _instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(InitModel, cls).__new__(cls, *args, **kwargs)
-            cls._instance.initialize_model()
-        return cls._instance
-
-    def initialize_model(self) -> None:
-        """Initializes the LLM instance."""
+    def __init__(self):
         self.model_name = os.getenv("LLM")
-        self.model = ChatOllama(
+        self._model = ChatGroq(
             model=self.model_name,
+            groq_api_key=os.getenv("GROQ_API_KEY"),
             temperature=0,
         )
 
-    def get_model(self) -> ChatOllama:
+    @property
+    def model(self) -> ChatGroq:
         """Returns the initialized LLM instance."""
-        if not hasattr(self, "model"):
+        if not hasattr(self, "_model") or self._model is None:
             err = "The model has not been initialized."
             logger.error(err)
             raise ValueError(err)
-        return self.model
+        return self._model
 
 
 class ResponseGenerator:
@@ -53,24 +50,27 @@ class ResponseGenerator:
             based only on provided context.
 
             Follow the steps below to generate a response:
-            1. Read the JSON type data provided.
-            2. Provide a detailed and descriptive explanation with the tone
-            of lecturing as the first part of the response only based on the
-            db_data provided. In that response emphase that the data is based
-            on the swanlake database.
-            3. Then to generate the second part of the use the web_data
+            1. Read the dictionary type data provided.
+            2. Provide a detailed explanation as the first paragraph
+            of the response only based on the db_data provided. In that
+            response emphasize that the data is based on the swanlake database.
+            3. Then to generate the second paragraph using the web_data
             provided. In that response emphase that the data is based on the
             web search.
 
-            JSON Data:
+            DB Data:
             {db_data}
 
             Web Data:
             {web_data}
+
+            Response should be in markdown format. The ressponse should only
+            contain two paragraphs (no titles or headings) separated by an
+            empty new line.
             """
         )
 
-        chain = prompt | self.model_manager.get_model() | StrOutputParser()
+        chain = prompt | self.model_manager.model | StrOutputParser()
         response = chain.invoke(
             {"search_item": search_item,
              "db_data": db_data,

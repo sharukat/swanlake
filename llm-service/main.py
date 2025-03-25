@@ -1,4 +1,3 @@
-import json
 import uvicorn
 import logging
 from dotenv import load_dotenv
@@ -7,7 +6,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from src.generate import ResponseGenerator
-from src.tools import web_search
 
 load_dotenv(dotenv_path="../.env")
 
@@ -28,6 +26,7 @@ class LLMInput(BaseModel):
     collection: str
     item: str
     db_data: dict
+    context: str
 
 
 @app.post("/ai/generate")
@@ -36,10 +35,23 @@ async def root(request: Request) -> JSONResponse:
         data = await request.json()
         data = LLMInput(**data)
         validated_data = data.model_dump()
-        db_data = validated_data['db_data']
-        web_data = web_search(data.collection, data.item)
+        db_data = validated_data["db_data"]
+        # web_data = web_search(data.collection, data.item)
 
-        return JSONResponse(content=web_data, status_code=200)
+        # urls = set()
+        # context = []
+        # for result in web_data["results"]:
+        #     urls.add(result["url"])
+        #     context.append(result["content"])
+
+        # web_data = "\n".join(context)
+        # print(f"Context: {web_data}")
+        response = ResponseGenerator().generate(
+            search_item=data.item,
+            db_data=str(db_data),
+            web_data=data.context,
+        )
+        return JSONResponse(content=response, status_code=200)
     except Exception as e:
         logger.error(f"Error in request: {e}")
         return JSONResponse(content="Error in request", status_code=500)
@@ -55,6 +67,7 @@ async def generate_resonse(input_data: LLMInput) -> JSONResponse:
     )
     logger.info("Response generation successful")
     return JSONResponse(content=response, status_code=200)
+
 
 if __name__ == "__main__":
     try:
