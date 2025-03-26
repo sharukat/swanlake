@@ -17,6 +17,7 @@ import {
 import React, { useState, useContext } from "react";
 import { useCollections } from "../hooks/use-collections";
 import Context from "@/contexts/context";
+import { FileUpload } from "./ui/file-upload";
 
 interface AppCardProps {
   imagePath: string;
@@ -27,6 +28,8 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
   const context = useContext(Context);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [collection, setCollection] = useState<string>(() => { return "" });
+  const [button, setButton] = useState<string>(() => { return "name" });
+  const [files, setFiles] = useState<File[]>([]);
 
   const handlePress = async (buttonName: string) => {
     if (buttonName === "Explore Birds") {
@@ -51,6 +54,11 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
     context.setName(name);
   }
 
+  const handleFileUpload = (files: File[]) => {
+    setFiles(files);
+    console.log(files);
+};
+
   return (
     <div className="flex flex-col">
       <Card isFooterBlurred className="border-none" radius="lg" isPressable onPress={() => handlePress(buttonName)}>
@@ -72,16 +80,36 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
               <DrawerHeader className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold">Select an Item</p>
                 <p className="font-light">Below is a list of {collection} found in Swanlake Park. Click on any to get more information.</p>
-                <Button color="danger" onPress={onClose}>
-                  Close
-                </Button>
+                <div className="flex flex-row items-center justify-center gap-4 pt-5">
+                  <Button color="primary" variant="flat" onPress={() => setButton("name")}>
+                    Explore by Name
+                  </Button>
+                  <Button color="primary" variant="flat" onPress={() => setButton("image")}>
+                    Explore by Image
+                  </Button>
+                </div>
               </DrawerHeader>
               <DrawerBody>
-                <Listbox aria-label="Actions">
-                  {context.names.map((name) => (
-                    <ListboxItem key={name} onPress={() => handleItemPress(name)}>{name}</ListboxItem>
-                  ))}
-                </Listbox>
+                {(button === "name") && (
+                  <Listbox aria-label="Actions">
+                    {context.names.map((name) => (
+                      <ListboxItem key={name} onPress={() => handleItemPress(name)}>{name}</ListboxItem>
+                    ))}
+                  </Listbox>
+                )}
+
+                {(button === "image") && (
+                  <div className="flex flex-col items-center">
+                    <FileUpload onChange={handleFileUpload} />
+                    <Button
+                      className="max-w-3xl"
+                      radius="full"
+                      color="primary"
+                      isDisabled={files.length === 0}
+                    >Create Vector Database</Button>
+                  </div>
+                )}
+
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" onPress={onClose}>

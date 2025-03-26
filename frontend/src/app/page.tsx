@@ -6,8 +6,7 @@ import { LayoutImageGrid } from "@/components/ImageGrid";
 import { ImagesSliderComp } from "@/components/imageSlider";
 import Context from "@/contexts/context";
 import { useCollections } from "@/hooks/use-collections";
-import { Spinner } from "@heroui/react";
-import { Image } from "@heroui/react";
+import { Spinner, Image, Chip } from "@heroui/react";
 
 export default function Home() {
   const { names, images, setImages, response, setResponse, fetchNames, generate } = useCollections();
@@ -74,13 +73,13 @@ export default function Home() {
           <h2 className="font-semibold text-center text-2xl p-5 mt-10">{name}</h2>
         )}
         {(response.length > 0) && (
-          <div className="flex flex-col max-w-7xl items-center justify-center bg-gray-100 rounded-2xl w-full">
-            <h2 className="font-semibold text-left justify-start">Based on Swan Lake Data</h2>
-            <p className="text-gray-600 text-xl font-light text-justify p-10">
+          <div className="flex flex-col max-w-7xl justify-start p-10 bg-gray-100 rounded-2xl w-full">
+            <Chip color="primary">Based on Swan Lake Data</Chip>
+            <p className="text-gray-600 text-xl font-light text-justify py-5">
               {response[0]}
             </p>
-            <h2 className="text-semibold">Based on Web Search</h2>
-            <p className="text-gray-600 text-xl font-light text-justify p-10">
+            <Chip color="primary">Based on Web Search</Chip>
+            <p className="text-gray-600 text-xl font-light text-justify py-5">
               {response[1]}
             </p>
           </div>
