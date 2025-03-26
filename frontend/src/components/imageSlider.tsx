@@ -25,26 +25,13 @@ export function ImagesSliderComp() {
                         y: 0,
                     }}
                     transition={{
-                        duration: 0.6,
+                        duration: 3,
                     }}
                     className="z-50 flex flex-col justify-center items-center"
                 >
-                    <div className="w-full bg-white p-10 rounded-3xl">
-                        <motion.p className="font-base text-xl md:text-6xl text-center py-4">
-                            Friends of Swan Lake Park
-                        </motion.p>
-                        <motion.p className="font-base text-xl md:text-6xl text-center py-4">
-                            CIFAL York
-                        </motion.p>
-                        <div className="flex flex-col justify-center items-center mx-auto">
-                            <Image
-                                alt="logos"
-                                className="m-5 mx-auto"
-                                src="logos.png"
-                                width={600}
-                            />
-                        </div>
-                    </div>
+                    <motion.p className="font-bold text-white text-3xl md:text-7xl text-center py-4">
+                        Swan Lake Citizen Science Lab
+                    </motion.p>
                 </motion.div>
             </ImagesSlider>
             <div className="absolute -bottom-10 left-0 w-full h-20 bg-gradient-to-t from-background to-transparent" />

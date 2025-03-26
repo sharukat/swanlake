@@ -16,8 +16,9 @@ import (
 )
 
 type CombinedResult struct {
-	Response string   `json:"response"`
-	Images   []string `json:"images"`
+	Response1 string   `json:"response1"`
+	Response2 string   `json:"response2"`
+	Images    []string `json:"images"`
 }
 
 func LoadRoutes() *chi.Mux {
@@ -70,7 +71,7 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 	}
 
 	type aiResponse struct {
-		response string
+		response []byte
 		err      error
 	}
 
@@ -169,14 +170,24 @@ func generationGoRoutine(w http.ResponseWriter, r *http.Request, mongoDBHandler 
 		return
 	}
 
-	result := CombinedResult{
-		Response: aiResult.response,
-		Images:   imageResult.images,
+	var result map[string]interface{}
+	ai_err := json.Unmarshal(aiResult.response, &result)
+	if ai_err != nil {
+		log.Fatalf("failed to unmarshal AI response: %v", ai_err)
+	}
+
+	response1, _ := result["response1"].(string)
+	response2, _ := result["response2"].(string)
+
+	results := CombinedResult{
+		Response1: response1,
+		Response2: response2,
+		Images:    imageResult.images,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(result); err != nil {
+	if err := json.NewEncoder(w).Encode(results); err != nil {
 		http.Error(w, fmt.Sprintf("Error encoding response: %v", err), http.StatusInternalServerError)
 	}
 }

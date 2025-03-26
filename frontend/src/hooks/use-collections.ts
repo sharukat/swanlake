@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { transformText } from "@/lib/utils";
 
 export const useCollections = () => {
     const [names, setNames] = useState<string[]>(() => { return [] })
     const [images, setImages] = useState<string[]>(() => { return [] })
-    const [response, setResponse] = useState<string>(() => { return "" })
+    const [response, setResponse] = useState<string[]>(() => { return [] })
 
     const fetchNames = async (collection_name: string) => {
         try {
@@ -40,8 +41,12 @@ export const useCollections = () => {
             )
             const data = await mongo_service_response.json();
             if (data) {
-                console.log("Fetched data", data);
-                setResponse(data.response);
+                // const responses = splitTextAtNewlines(data.response);
+                // const paragraphs = data.response.split('\n\n').map(p => p.trim());
+                console.log("Response1", data.response1);
+                console.log("Response2", data.response2);
+                const final_response: string[] = [data.response1, data.response2];
+                setResponse(final_response);
                 setImages(Array.isArray(data.images) ? data.images : []);
             }
             

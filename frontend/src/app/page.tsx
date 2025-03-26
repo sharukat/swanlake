@@ -7,6 +7,7 @@ import { ImagesSliderComp } from "@/components/imageSlider";
 import Context from "@/contexts/context";
 import { useCollections } from "@/hooks/use-collections";
 import { Spinner } from "@heroui/react";
+import { Image } from "@heroui/react";
 
 export default function Home() {
   const { names, images, setImages, response, setResponse, fetchNames, generate } = useCollections();
@@ -14,7 +15,7 @@ export default function Home() {
   const [status, setStatus] = useState<boolean>(() => { return false });
 
   useEffect(() => {
-    if (response !== "") {
+    if (response.length > 0) {
       setStatus(false);
     }
   }, [response]);
@@ -36,6 +37,16 @@ export default function Home() {
     }}>
       <section key="home" className="w-full flex flex-col items-center justify-center px-auto">
         <ImagesSliderComp />
+
+        <div className="flex flex-col justify-center items-center mx-auto">
+          <Image
+            alt="logos"
+            className="m-5 mx-auto"
+            src="logos.png"
+            width={600}
+          />
+        </div>
+
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 mt-10 max-w-7xl px-auto p-10">
           <div className="md:col-span-2">
             <p className="text-gray-600 text-2xl text-left max-w-5xl">
@@ -62,10 +73,15 @@ export default function Home() {
         {(name !== "") && (
           <h2 className="font-semibold text-center text-2xl p-5 mt-10">{name}</h2>
         )}
-        {(response !== "") && (
-          <div className="flex max-w-7xl items-center justify-center bg-gray-100 rounded-2xl w-full">
+        {(response.length > 0) && (
+          <div className="flex flex-col max-w-7xl items-center justify-center bg-gray-100 rounded-2xl w-full">
+            <h2 className="font-semibold text-left justify-start">Based on Swan Lake Data</h2>
             <p className="text-gray-600 text-xl font-light text-justify p-10">
-              {transformString(response)}
+              {response[0]}
+            </p>
+            <h2 className="text-semibold">Based on Web Search</h2>
+            <p className="text-gray-600 text-xl font-light text-justify p-10">
+              {response[1]}
             </p>
           </div>
         )}
@@ -85,9 +101,9 @@ export default function Home() {
 function transformString(input: string): string {
   // Remove double quotes from the beginning and end of the string
   let transformed = input.replace(/^"|"$/g, '');
-  
+
   // Replace escaped newline characters with actual newlines
   transformed = transformed.replace(/\\n/g, '\n\n');
-  
+
   return transformed;
 }

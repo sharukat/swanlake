@@ -46,12 +46,18 @@ async def root(request: Request) -> JSONResponse:
 
         # web_data = "\n".join(context)
         # print(f"Context: {web_data}")
-        response = ResponseGenerator().generate(
+        response_1 = ResponseGenerator().generate(
             search_item=data.item,
-            db_data=str(db_data),
-            web_data=data.context,
+            data=str(db_data),
         )
-        return JSONResponse(content=response, status_code=200)
+        response_2 = ResponseGenerator().generate(
+            search_item=data.item,
+            data=data.context,
+        )
+        return JSONResponse(
+            content={"response1": response_1, "response2": response_2},
+            status_code=200
+            )
     except Exception as e:
         logger.error(f"Error in request: {e}")
         return JSONResponse(content="Error in request", status_code=500)

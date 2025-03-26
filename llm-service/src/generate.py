@@ -1,7 +1,9 @@
 import os
 from dotenv import load_dotenv
 from functools import lru_cache
+
 from langchain_groq import ChatGroq
+# from langchain_ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -44,38 +46,22 @@ class ResponseGenerator:
     def __init__(self) -> None:
         self.model_manager = InitModel()
 
-    def generate(self, search_item: str, db_data: dict, web_data: str) -> str:
+    def generate(self, search_item: str, data) -> str:
         prompt = PromptTemplate.from_template(
-            """You are an expert in providing information about {search_item}
-            based only on provided context.
+            """
+            You are an expert in providing information about {search_item} based solely on the context provided below. Please follow these structured steps to generate your response:
 
-            Follow the steps below to generate a response:
-            1. Read the dictionary type data provided.
-            2. Provide a detailed explanation as the first paragraph
-            of the response only based on the db_data provided. In that
-            response emphasize that the data is based on the swanlake database.
-            3. Then to generate the second paragraph using the web_data
-            provided. In that response emphase that the data is based on the
-            web search.
+            1. First, carefully read and analyze the information provided under "Data."
+            2. Use this data to craft an explanation which is less than 175 words.
 
-            DB Data:
-            {db_data}
-
-            Web Data:
-            {web_data}
-
-            Response should be in markdown format. The ressponse should only
-            contain two paragraphs (no titles or headings) separated by an
-            empty new line.
+            Data:
+            {data}
             """
         )
 
         chain = prompt | self.model_manager.model | StrOutputParser()
-        response = chain.invoke(
-            {"search_item": search_item,
-             "db_data": db_data,
-             "web_data": web_data}
-        )
+        response = chain.invoke({"search_item": search_item,
+                                 "data": data})
         return response
 
 
@@ -85,7 +71,6 @@ class LLMService:
     def __init__(self) -> None:
         self.response_generator = ResponseGenerator()
 
-    def generate_response(
-            self, search_item: str, db_data: dict, web_data: str) -> str:
+    def generate_response(self, search_item: str, data) -> str:
         """Generates a response based on the given input."""
-        return self.response_generator.generate(search_item, db_data, web_data)
+        return self.response_generator.generate(search_item, data)

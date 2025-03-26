@@ -43,7 +43,7 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
 
   const handleItemPress = async (name: string) => {
     context.setStatus(true);
-    context.setResponse("");
+    context.setResponse([]);
     context.setName("");
     context.setImages([]);
     onClose();
@@ -72,6 +72,9 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
               <DrawerHeader className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold">Select an Item</p>
                 <p className="font-light">Below is a list of {collection} found in Swanlake Park. Click on any to get more information.</p>
+                <Button color="danger" onPress={onClose}>
+                  Close
+                </Button>
               </DrawerHeader>
               <DrawerBody>
                 <Listbox aria-label="Actions">

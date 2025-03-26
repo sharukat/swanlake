@@ -15,14 +15,28 @@ export default function Navigationbar() {
         <div className="flex justify-center w-[80%] fixed top-0 z-20">
             <Navbar
                 className="w-[80%] mt-5 rounded-full bg-background/40 backdrop-blur-xl"
+                classNames={{item: [
+                    "flex",
+                    "relative",
+                    "h-full",
+                    "items-center",
+                    "data-[active=true]:after:content-['']",
+                    "data-[active=true]:after:absolute",
+                    "data-[active=true]:after:bottom-3",
+                    "data-[active=true]:after:left-0",
+                    "data-[active=true]:after:right-0",
+                    "data-[active=true]:after:h-[2px]",
+                    "data-[active=true]:after:rounded-[2px]",
+                    "data-[active=true]:after:bg-primary",
+                  ],}}
             >
                 <NavbarBrand>
                     <p className="font-bold text-inherit md:text-lg text-base">
-                        SwanLake
+                        Swan Lake
                     </p>
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center">
-                    <NavbarItem>
+                    <NavbarItem isActive>
                         <Link color="foreground" href="#home">
                             AI Assistant
                         </Link>
