@@ -13,7 +13,7 @@ import {
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Admin } from "./admin";
-import { Drones } from "./drones";
+import { Drones } from "./drones/page";
 
 
 export default function SidebarAdmin() {
