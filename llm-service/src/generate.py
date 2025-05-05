@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from functools import lru_cache
 
 from langchain_groq import ChatGroq
+
 # from langchain_ollama import ChatOllama
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -60,8 +61,7 @@ class ResponseGenerator:
         )
 
         chain = prompt | self.model_manager.model | StrOutputParser()
-        response = chain.invoke({"search_item": search_item,
-                                 "data": data})
+        response = chain.invoke({"search_item": search_item, "data": data})
         return response
 
 

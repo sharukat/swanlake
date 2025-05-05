@@ -32,12 +32,12 @@ export default function Navigationbar() {
             >
                 <NavbarBrand>
                     <p className="font-bold text-inherit md:text-lg text-base">
-                        Swan Lake
+                        <a href="/">Swan Lake</a>
                     </p>
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center">
                     <NavbarItem isActive>
-                        <Link color="foreground" href="#home">
+                        <Link color="foreground" href="/">
                             AI Assistant
                         </Link>
                     </NavbarItem>
@@ -54,7 +54,7 @@ export default function Navigationbar() {
                 </NavbarContent>
                 <NavbarContent justify="end">
                     <NavbarItem>
-                        <Button as={Link} color="primary" href="#" radius="full">
+                        <Button as={Link} color="primary" href="/admin" radius="full">
                             Admin Panel
                         </Button>
                     </NavbarItem>

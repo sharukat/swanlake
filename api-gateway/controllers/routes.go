@@ -45,6 +45,7 @@ func loadServiceRoutes(router chi.Router) {
 	router.Get("/generation/{collection}/{name}", func(w http.ResponseWriter, r *http.Request) {
 		generation(w, r, mongoDBHandler)
 	})
+	router.Post("/mongo", mongoDBHandler.Create)
 }
 
 func generation(w http.ResponseWriter, r *http.Request, handler *mongo.MongoDBHandler) {

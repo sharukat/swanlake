@@ -62,6 +62,18 @@ type MongoBird struct {
 	Obs2024SwanL        string `bson:"Observed 2024 SwanL" json:"observed_2024_swanl"`
 }
 
+type CreateRecord struct {
+	Category     string `json:"category"`
+	CommonName   string `json:"common_name"`
+	ObservedDate string `json:"observed_date"`
+	NatureGroup  string `json:"nature_group"`
+}
+
+type CreateResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 func (h *MongoDBHandler) GetCollection(name string) *mongo.Collection {
 	return h.Client.Database(h.Database).Collection(name)
 }
@@ -107,4 +119,53 @@ func (h *MongoDBHandler) GetByName(w http.ResponseWriter, r *http.Request) (Mong
 		return MongoBird{}, err
 	}
 	return result, nil
+}
+
+func (h *MongoDBHandler) Create(w http.ResponseWriter, r *http.Request) {
+	// defer r.Body.Close()
+
+	// var data map[string]CreateRecord
+	// if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	// 	http.Error(w, fmt.Sprintf("Failed to decode request body: %v", err), http.StatusBadRequest)
+	// }
+
+	const maxMemory = 10 << 20 // 10 MB
+	err := r.ParseMultipartForm(maxMemory)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse form: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	category := r.FormValue("category")
+	commonName := r.FormValue("common_name")
+	observedDate := r.FormValue("observed_date")
+	scientificName := r.FormValue("scientific_name")
+	natureGroup := r.FormValue("nature_group")
+	image := r.FormValue("image")
+
+	fmt.Println("Category:", category)
+	fmt.Println("Common Name:", commonName)
+	fmt.Println("Observed Date:", observedDate)
+	fmt.Println("Scientific Name:", scientificName)
+	fmt.Println("Nature Group:", natureGroup)
+	fmt.Println("Image:", image)
+
+	// response := struct{}{
+	// 	Status:  "success",
+	// 	Message: "Record created successfully",
+	// }
+
+	response := struct {
+		Status  string
+		Message string
+	}{
+		Status:  "Success",
+		Message: "Record created successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, fmt.Sprintf("Error encoding response: %v", err), http.StatusInternalServerError)
+	}
 }

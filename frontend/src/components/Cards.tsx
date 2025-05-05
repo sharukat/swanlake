@@ -106,7 +106,7 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
                       radius="full"
                       color="primary"
                       isDisabled={files.length === 0}
-                    >Create Vector Database</Button>
+                    >Upload Image</Button>
                   </div>
                 )}
 
