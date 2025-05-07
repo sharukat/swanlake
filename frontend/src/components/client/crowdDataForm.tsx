@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { CATEGORIES, NATURE_GROUPS } from "@/lib/constants";
 import ImageUpload from "@/components/client/imageUpload";
 import Context from "@/contexts/imageContext";
+import { Camera } from "lucide-react";
 import {
   Form,
   Input,
@@ -50,14 +51,12 @@ export default function CrowdDataForm() {
         onSubmit={handleSubmit}
         encType="multipart/form-data"
       >
-        <div className="flex sm-flex-col-1 md-flex-col-2 gap-5 w-full">
-          <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-5 w-full">
+          <div className="grid sm-grid-cols-1 grid-cols-3 gap-5">
             <Select
               isRequired
-              className="max-w-sm"
               label="Input Category"
               placeholder="Select a category"
-              labelPlacement="outside"
               name="category"
               //   value={selectedCategory}
               //   onChange={handleCategoryChange}
@@ -69,10 +68,8 @@ export default function CrowdDataForm() {
 
             <Input
               isRequired
-              className="max-w-sm"
               errorMessage="Please enter a name"
               label="Bird/Plant/Animal Name"
-              labelPlacement="outside"
               name="common_name"
               placeholder="Enter the name"
               type="text"
@@ -80,16 +77,16 @@ export default function CrowdDataForm() {
 
             <NumberInput
               isRequired
-              className="max-w-xs"
               defaultValue={1}
               label="Count observed"
               placeholder="Enter the amount"
             />
+          </div>
 
+          <div className="grid sm-grid-cols-1 grid-cols-3 gap-5">
             <Input
               className="max-w-sm"
               label="Scientific Name"
-              labelPlacement="outside"
               name="scientific_name"
               placeholder="Enter the scientific name (if known)"
               type="text"
@@ -100,23 +97,31 @@ export default function CrowdDataForm() {
               className="max-w-sm"
               label="Observed date"
               name="observed_date"
-              labelPlacement="outside"
             />
-
-            <ImageUpload name="image" label="Upload Image" />
           </div>
 
+          <ImageUpload name="image" label="Upload Image" />
+
           {/* IMAGE_PICKER */}
-          <div className="flex flex-col items-center w-full max-w-[50%] max-h-[50%] border-1 rounded-lg border-gray-300 relative aspect-square">
-            {!image && <p>No image picked yet.</p>}
-            {image && (
-              <Image
-                alt="Selected image"
-                fill
-                src={image}
-                className="object-cover rounded-lg"
-              />
-            )}
+          <div className="flex flex-col items-center justify-center">
+            <div className="aspect-square w-64 border border-gray-300 rounded-lg relative overflow-hidden">
+              {!image && (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <Camera className="w-8 h-8 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-500">
+                    No image picked yet.
+                  </p>
+                </div>
+              )}
+              {image && (
+                <Image
+                  fill
+                  alt="Selected image"
+                  src={image}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              )}
+            </div>
           </div>
         </div>
 

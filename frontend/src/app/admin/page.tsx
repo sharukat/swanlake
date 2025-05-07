@@ -1,151 +1,77 @@
-"use client";
 
-import React, { useEffect, useState } from "react";
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import {
-    IconArrowLeft,
-    IconBrandTabler,
-    IconDrone,
-    IconDropletHalf2Filled,
-    IconSettings,
-    IconUserBolt,
-} from "@tabler/icons-react";
-import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
-import { Admin } from "./admin";
-import { Drones } from "./drones/page";
+import { useAddRecords } from "@/hooks/use-addrecords";
+import CrowdDataForm from "@/components/client/crowdDataForm";
 
 
-export default function SidebarAdmin() {
-    const links = [
-        {
-            label: "Add Data",
-            href: "#",
-            icon: (
-                <IconBrandTabler className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-            ),
-            componentId: "admin",
-        },
-        {
-            label: "Water Quality Data",
-            href: "#",
-            icon: (
-                <IconDropletHalf2Filled className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-            ),
-            componentId: "waterQuality",
-        },
-        {
-            label: "Drone Footages",
-            href: "#drones",
-            icon: (
-                <IconDrone className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-            ),
-            componentId: "drones",
-        },
-        {
-            label: "Settings",
-            href: "#",
-            icon: (
-                <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-            ),
-            componentId: "settings",
-        },
-        {
-            label: "Logout",
-            href: "#",
-            icon: (
-                <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-            ),
-            componentId: "logout",
-        },
-    ];
+export default function AdminPage() {
+    // const [action, setAction] = useState<string | null>(null);
+    // const [files, setFiles] = useState<File[]>([]);
+    // const [selectedCategory, setSelectedCategory] = useState("");
+    // const [selectedNatureGroups, setSelectedNatureGroups] = useState([]);
+    // const { addRecords } = useAddRecords();
 
-    const [activeComponent, setActiveComponent] = useState<string>("admin");
-    const [open, setOpen] = useState(false);
 
-    const handleLinkClick = (e: any, componentId: string) => {
-        e.preventDefault();
-        setActiveComponent(componentId);
-    };
+    // const handleFileUpload = (files: File[]) => {
+    //     setFiles(files);
+    //     console.log("Files uploaded: ", files);
+    // };
 
-    const renderComponent = () => {
-        switch (activeComponent) {
-            case "admin":
-                return <Admin />;
-            case "drones":
-                return <Drones />;
-            case "waterQuality":
-                return <div className="p-6"><h2 className="text-2xl font-bold">Water Quality Data</h2><p>Water quality data will be displayed here.</p></div>;
-            case "settings":
-                return <div className="p-6"><h2 className="text-2xl font-bold">Settings</h2><p>Settings options will be displayed here.</p></div>;
-            case "logout":
-                return <div className="p-6"><h2 className="text-2xl font-bold">Logout</h2><p>Logout confirmation will be displayed here.</p></div>;
-            default:
-                return <Admin />;
-        }
-    };
+    // const handleSubmit = async (e: any) => {
+    //     e.preventDefault();
+    //     try {
+    //         const formData = new FormData();
+            
+    //         formData.append("category", selectedCategory);
+            
+    //         const commonName = e.currentTarget.elements.common_name.value;
+    //         const scientificName = e.currentTarget.elements.scientific_name.value;
+    //         const observedDate = e.currentTarget.elements.observed_date.value;
+    //         formData.append("common_name", commonName);
+    //         formData.append("scientific_name", scientificName);
+    //         formData.append("observed_date", observedDate);
+            
+    //         if (files.length > 0) {
+    //             formData.append("image", files[0]);
+    //         }
+            
+    //         if (selectedNatureGroups.length > 0) {
+    //             selectedNatureGroups.forEach(group => {
+    //                 formData.append("nature_group", group);
+    //             });
+    //         }
+    //         await addRecords(formData);
+    //     } catch (error) {
+    //         console.error("Error submitting form:", error);
+    //     }
+    // }
+
+    // const handleCategoryChange = (e: any) => {
+    //     const category = e.target.value;
+    //     setSelectedCategory(category);
+    //     // Reset nature groups when category changes
+    //     setSelectedNatureGroups([]);
+    // };
+
+    // const handleNatureGroupChange = (e: any) => {
+    //     const value = e.target.value;
+    //     setSelectedNatureGroups(typeof value === 'string' ? value.split(',').filter(Boolean) : value);
+    // };
 
     return (
-        <div
-            className={cn(
-                "mx-auto flex w-full flex-1 flex-col overflow-hidden rounded-md border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800",
-                "h-screen", // for your use case, use `h-screen` instead of `h-[60vh]`
-            )}
-        >
-            <Sidebar open={open} setOpen={setOpen} animate={false}>
-                <SidebarBody className="justify-between gap-10">
-                    <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
-                        <>
-                            <Logo />
-                        </>
-                        <div className="mt-8 flex flex-col gap-2">
-                            {links.map((link, idx) => (
-                                <div key={idx} onClick={(e) => handleLinkClick(e, link.componentId)}>
-                                    <SidebarLink key={idx} link={link} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <SidebarLink
-                            link={{
-                                label: "Sharuka Thirimanne",
-                                href: "#",
-                                icon: (
-                                    <img
-                                        src="avatar.jpg"
-                                        className="h-7 w-7 shrink-0 rounded-full"
-                                        width={50}
-                                        height={50}
-                                        alt="Avatar"
-                                    />
-                                ),
-                            }}
-                        />
-                    </div>
-                </SidebarBody>
-            </Sidebar>
-            {renderComponent()}
-        </div>
-    );
-}
-
-export const Logo = () => {
-    return (
-        <div className="flex flex-col">
-            <a
-                href="#"
-                className="relative z-20 flex items-center space-x-2 py-1 text-lg font-semibold text-black pt-5"
+        <section key="admin" className="w-full flex flex-col items-center justify-center px-auto bg-white">
+            <div
+                className="overflow-hidden w-full relative flex items-center justify-center h-[5rem]"
             >
-                <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="font-medium whitespace-pre text-black dark:text-white"
-                >
-                    Admin Panel
-                </motion.span>
-            </a>
-            <p className="text-black text-sm font-normal pt-2">This page enables the database to be populated with the latest data, ensuring it remains current and up-to-date.</p>
-        </div>
-    );
-};
+                <div className="absolute top-0 left-0 w-full h-20 pl-20">
+                    <div className="flex flex-col justify-center h-full">
+                        <h1 className="text-3xl text-black font-bold">Add Plants, Birds, or Animals Data</h1>
+                    </div>
+                </div>
+            </div>
+            <div className="flex flex-col max-w-5xl w-full justify-center items-center mx-auto mt-5">
+                <CrowdDataForm />
+            </div>
+
+        </section >
+    )
+}

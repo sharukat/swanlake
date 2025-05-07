@@ -4,7 +4,7 @@ import { Form, Input, Button, Select, SelectItem, DatePicker, Accordion, Accordi
 import { FileUpload } from "@/components/ui/file-upload";
 
 
-export const Drones = () => {
+export default function Drones() {
     const [action, setAction] = useState<string | null>(null);
     const [files, setFiles] = useState<File[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("");

@@ -1,6 +1,8 @@
-import "./globals.css";
+import "../globals.css";
 import Footer from '@/components/Footer';
-import { Providers } from "./providers";
+import { Providers } from "../providers";
+import Navigationbar from '@/components/NavigationBar'
+
 
 export default function RootLayout({
   children,
@@ -9,6 +11,9 @@ export default function RootLayout({
     <html lang="en" className="!scroll-smooth">
       <body>
         <Providers>
+          <div className="flex justify-center">
+            <Navigationbar />
+          </div>
           <main className='min-h-screen flex-grow'>
             {children}
           </main>
