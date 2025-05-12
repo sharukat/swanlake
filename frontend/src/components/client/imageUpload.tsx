@@ -42,7 +42,8 @@ export default function ImageUpload({ name, label }: ImageProps) {
       />
       <Button
         type="button"
-        className="max-w-sm"
+        variant="bordered"
+        className="max-w-xs"
         color="primary"
         onPress={handleImageUpload}
       >

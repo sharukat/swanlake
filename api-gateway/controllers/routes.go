@@ -21,6 +21,10 @@ type CombinedResult struct {
 	Images    []string `json:"images"`
 }
 
+type ChatResult struct {
+	Response string `json:"response"`
+}
+
 func LoadRoutes() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
@@ -46,7 +50,22 @@ func loadServiceRoutes(router chi.Router) {
 		generation(w, r, mongoDBHandler)
 	})
 	router.Post("/mongo", mongoDBHandler.Create)
+	router.Post("/chat", ai.ChatHandlerFunc)
 }
+
+// func chatGoRoutine(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Println("Chat endpoint hit")
+
+// 	result := ChatResult{
+// 		Response: "Response from AI service",
+// 	}
+
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(http.StatusOK)
+// 	if err := json.NewEncoder(w).Encode(result); err != nil {
+// 		http.Error(w, fmt.Sprintf("Error encoding response: %v", err), http.StatusInternalServerError)
+// 	}
+// }
 
 func generation(w http.ResponseWriter, r *http.Request, handler *mongo.MongoDBHandler) {
 	collectionName := chi.URLParam(r, "collection")

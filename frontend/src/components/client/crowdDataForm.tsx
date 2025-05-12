@@ -13,8 +13,6 @@ import {
   SelectItem,
   NumberInput,
   DatePicker,
-  Accordion,
-  AccordionItem,
 } from "@heroui/react";
 import Image from "next/image";
 
@@ -41,7 +39,7 @@ export default function CrowdDataForm() {
   return (
     <Context.Provider value={{ image, setImage }}>
       <Form
-        className="w-full flex flex-col gap-4 items-center"
+        className="w-full flex flex-col gap-4"
         onReset={() => {
           //   setAction("reset");
           //   setFiles([]);
@@ -52,7 +50,7 @@ export default function CrowdDataForm() {
         encType="multipart/form-data"
       >
         <div className="flex flex-col gap-5 w-full">
-          <div className="grid sm-grid-cols-1 grid-cols-3 gap-5">
+          <div className="grid sm-grid-cols-1 grid-cols-2 gap-5">
             <Select
               isRequired
               label="Input Category"
@@ -74,18 +72,10 @@ export default function CrowdDataForm() {
               placeholder="Enter the name"
               type="text"
             />
-
-            <NumberInput
-              isRequired
-              defaultValue={1}
-              label="Count observed"
-              placeholder="Enter the amount"
-            />
           </div>
 
-          <div className="grid sm-grid-cols-1 grid-cols-3 gap-5">
+          <div className="grid sm-grid-cols-1 grid-cols-2 gap-5">
             <Input
-              className="max-w-sm"
               label="Scientific Name"
               name="scientific_name"
               placeholder="Enter the scientific name (if known)"
@@ -94,16 +84,24 @@ export default function CrowdDataForm() {
 
             <DatePicker
               isRequired
-              className="max-w-sm"
               label="Observed date"
               name="observed_date"
+            />
+          </div>
+
+          <div className="grid sm-grid-cols-1 grid-cols-2 gap-5">
+            <NumberInput
+              isRequired
+              defaultValue={1}
+              label="Count observed"
+              placeholder="Enter the amount"
             />
           </div>
 
           <ImageUpload name="image" label="Upload Image" />
 
           {/* IMAGE_PICKER */}
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col justify-start">
             <div className="aspect-square w-64 border border-gray-300 rounded-lg relative overflow-hidden">
               {!image && (
                 <div className="flex flex-col items-center justify-center h-full">

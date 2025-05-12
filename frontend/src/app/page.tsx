@@ -4,6 +4,7 @@ import Image from "next/image";
 import { BentoGrid, BentoGridItem } from "@/components/server/bento-grid";
 import { BENTOGRID_ITEMS } from "@/lib/constants";
 import Navigationbar from "@/components/NavigationBar";
+import ChatAssistant from "@/components/client/chatAssistant";
 
 export default function Home() {
   return (
@@ -15,17 +16,23 @@ export default function Home() {
 
       <ImagesSliderComp />
 
-      <div className="flex flex-col justify-center items-center mx-auto">
+      <div className="flex flex-col justify-center items-center mx-auto mt-10">
         <Image
+          priority
           alt="logos"
           className="m-5 mx-auto"
           src="/logos.png"
-          width={600}
-          height={200}
+          width={2246}
+          height={362}
+          style={{
+            width: "auto",
+            height: "auto",
+            maxWidth: "600px",
+          }}
         />
       </div>
 
-      <div className="flex flex-col mt-10 max-w-7xl px-auto p-10">
+      <div className="flex flex-col max-w-7xl px-auto p-5">
         <p className="text-gray-600 text-2xl text-center">
           Swan Lake Park is home to a rich diversity of wildlife. Over 30 years,
           Swan Lake Park has evolved from an inactive, obscure gravel pit to the
@@ -47,9 +54,12 @@ export default function Home() {
             description={item.description}
             header={item.header}
             className={item.className}
+            href={item.href}
           />
         ))}
       </BentoGrid>
+
+      <ChatAssistant />
     </section>
   );
 }

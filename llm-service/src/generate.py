@@ -1,4 +1,5 @@
 import os
+from typing import List
 from dotenv import load_dotenv
 from functools import lru_cache
 
@@ -74,3 +75,23 @@ class LLMService:
     def generate_response(self, search_item: str, data) -> str:
         """Generates a response based on the given input."""
         return self.response_generator.generate(search_item, data)
+
+
+class ChatBot:
+    def __init__(self) -> None:
+        self.model_manager = InitModel()
+
+    def generate(self, question: str, history: List[str]) -> str:
+        prompt = PromptTemplate.from_template(
+            """
+            You are an expert in providing information about Markham Swan Lake Park. Below is the conversation history.
+            {history}
+
+            Please concise answer to the question.
+            {question}
+            """
+        )
+
+        chain = prompt | self.model_manager.model | StrOutputParser()
+        response = chain.invoke({"history": history, "question": question})
+        return response

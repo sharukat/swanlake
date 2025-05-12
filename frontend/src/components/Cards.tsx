@@ -9,13 +9,13 @@ import {
   useDisclosure,
   Card,
   CardFooter,
-  Image,
   Button,
   Listbox,
-  ListboxItem
+  ListboxItem,
+  CardBody,
+  Image,
 } from "@heroui/react";
 import React, { useState, useContext } from "react";
-import { useCollections } from "../hooks/use-collections";
 import Context from "@/contexts/context";
 import { FileUpload } from "./ui/file-upload";
 
@@ -27,8 +27,12 @@ interface AppCardProps {
 export default function AppCard({ imagePath, buttonName }: AppCardProps) {
   const context = useContext(Context);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [collection, setCollection] = useState<string>(() => { return "" });
-  const [button, setButton] = useState<string>(() => { return "name" });
+  const [collection, setCollection] = useState<string>(() => {
+    return "";
+  });
+  const [button, setButton] = useState<string>(() => {
+    return "name";
+  });
   const [files, setFiles] = useState<File[]>([]);
 
   const handlePress = async (buttonName: string) => {
@@ -42,7 +46,7 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
       console.error("Invalid button name");
     }
     onOpen();
-  }
+  };
 
   const handleItemPress = async (name: string) => {
     context.setStatus(true);
@@ -52,26 +56,33 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
     onClose();
     await context.generate(collection, name);
     context.setName(name);
-  }
+  };
 
   const handleFileUpload = (files: File[]) => {
     setFiles(files);
     console.log(files);
-};
+  };
 
   return (
     <div className="flex flex-col">
-      <Card isFooterBlurred className="border-none" radius="lg" isPressable onPress={() => handlePress(buttonName)}>
+      <Card
+        isFooterBlurred
+        className="border-none"
+        radius="lg"
+        isPressable
+        onPress={() => handlePress(buttonName)}
+      >
+        <CardBody className="absolute z-10 flex flex-col items-center justify-center">
+          <h4 className="text-white font-medium text-4xl">{buttonName}</h4>
+        </CardBody>
         <Image
-          alt="Image dropdown card"
-          className="object-cover"
+          removeWrapper
+          alt="Card background"
+          className="z-0 object-cover"
           height={200}
           src={imagePath}
           width={200}
         />
-        <CardFooter className="before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10 justify-center">
-          <p className="text-base font-bold text-white/80">{buttonName}</p>
-        </CardFooter>
       </Card>
       <Drawer backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
         <DrawerContent>
@@ -79,26 +90,42 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
             <>
               <DrawerHeader className="flex flex-col gap-1">
                 <p className="text-2xl font-semibold">Select an Item</p>
-                <p className="font-light">Below is a list of {collection} found in Swanlake Park. Click on any to get more information.</p>
+                <p className="font-light">
+                  Below is a list of {collection} found in Swanlake Park. Click
+                  on any to get more information.
+                </p>
                 <div className="flex flex-row items-center justify-center gap-4 pt-5">
-                  <Button color="primary" variant="flat" onPress={() => setButton("name")}>
+                  <Button
+                    color="primary"
+                    variant="flat"
+                    onPress={() => setButton("name")}
+                  >
                     Explore by Name
                   </Button>
-                  <Button color="primary" variant="flat" onPress={() => setButton("image")}>
+                  <Button
+                    color="primary"
+                    variant="flat"
+                    onPress={() => setButton("image")}
+                  >
                     Explore by Image
                   </Button>
                 </div>
               </DrawerHeader>
               <DrawerBody>
-                {(button === "name") && (
+                {button === "name" && (
                   <Listbox aria-label="Actions">
                     {context.names.map((name) => (
-                      <ListboxItem key={name} onPress={() => handleItemPress(name)}>{name}</ListboxItem>
+                      <ListboxItem
+                        key={name}
+                        onPress={() => handleItemPress(name)}
+                      >
+                        {name}
+                      </ListboxItem>
                     ))}
                   </Listbox>
                 )}
 
-                {(button === "image") && (
+                {button === "image" && (
                   <div className="flex flex-col items-center">
                     <FileUpload onChange={handleFileUpload} />
                     <Button
@@ -106,10 +133,11 @@ export default function AppCard({ imagePath, buttonName }: AppCardProps) {
                       radius="full"
                       color="primary"
                       isDisabled={files.length === 0}
-                    >Upload Image</Button>
+                    >
+                      Upload Image
+                    </Button>
                   </div>
                 )}
-
               </DrawerBody>
               <DrawerFooter>
                 <Button color="danger" onPress={onClose}>

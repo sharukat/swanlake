@@ -9,6 +9,7 @@ import {
   NavbarContent,
   NavbarItem,
 } from "@heroui/react";
+import Login from "@/components/server/login";
 
 export default function Navigationbar() {
   return (
@@ -20,20 +21,18 @@ export default function Navigationbar() {
           </p>
         </NavbarBrand>
         <NavbarContent justify="end">
-          <NavbarItem>
+          <NavbarItem className="text-semibold">
             <Link color="foreground" href="/dashboard">
               Dashboard
             </Link>
           </NavbarItem>
-          <NavbarItem>
+          <NavbarItem className="text-semibold">
             <Link color="foreground" href="/admin">
               Admin Panel
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Button as={Link} color="primary" variant="flat" href="/admin" radius="full">
-              Login
-            </Button>
+            <Login />
           </NavbarItem>
         </NavbarContent>
       </Navbar>

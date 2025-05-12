@@ -1,4 +1,6 @@
 "use client";
+
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import React, { useEffect, useState } from "react";
@@ -21,8 +23,7 @@ export const ImagesSlider = ({
   direction?: "up" | "down";
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [loadedImages, setLoadedImages] = useState<string[]>([]);
+  const [imagesReady, setImagesReady] = useState(false);
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
@@ -36,28 +37,16 @@ export const ImagesSlider = ({
     );
   };
 
+  // Track when the first image is fully loaded to show the slider
   useEffect(() => {
-    loadImages();
-  }, []);
+    if (images.length > 0) {
+      // Use a DOM-based approach that's compatible with TypeScript
+      const img = document.createElement("img");
+      img.src = images[0];
+      img.onload = () => setImagesReady(true);
+    }
+  }, [images]);
 
-  const loadImages = () => {
-    setLoading(true);
-    const loadPromises = images.map((image) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = image;
-        img.onload = () => resolve(image);
-        img.onerror = reject;
-      });
-    });
-
-    Promise.all(loadPromises)
-      .then((loadedImages) => {
-        setLoadedImages(loadedImages as string[]);
-        setLoading(false);
-      })
-      .catch((error) => console.error("Failed to load images", error));
-  };
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowRight") {
@@ -70,7 +59,7 @@ export const ImagesSlider = ({
     window.addEventListener("keydown", handleKeyDown);
 
     // autoplay
-    let interval: any;
+    let interval: NodeJS.Timeout;
     if (autoplay) {
       interval = setInterval(() => {
         handleNext();
@@ -79,9 +68,9 @@ export const ImagesSlider = ({
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
-  }, []);
+  }, [autoplay]);
 
   const slideVariants = {
     initial: {
@@ -114,8 +103,6 @@ export const ImagesSlider = ({
     },
   };
 
-  const areImagesLoaded = loadedImages.length > 0;
-
   return (
     <div
       className={cn(
@@ -126,25 +113,56 @@ export const ImagesSlider = ({
         perspective: "1000px",
       }}
     >
-      {areImagesLoaded && children}
-      {areImagesLoaded && overlay && (
+      {/* Preload images */}
+      <div className="hidden">
+        {images.map((src, index) => (
+          <Image
+            key={`preload-${index}`}
+            src={src}
+            alt={`Preloaded image ${index}`}
+            width={1}
+            height={1}
+            priority={index === (currentIndex + 1) % images.length}
+            unoptimized
+            onLoad={() => {
+              if (index === 0 && !imagesReady) {
+                setImagesReady(true);
+              }
+            }}
+          />
+        ))}
+      </div>
+
+      {imagesReady && children}
+      {imagesReady && overlay && (
         <div
           className={cn("absolute inset-0 bg-black/60 z-40", overlayClassName)}
         />
       )}
 
-      {areImagesLoaded && (
-        <AnimatePresence>
-          <motion.img
-            key={currentIndex}
-            src={loadedImages[currentIndex]}
-            initial="initial"
-            animate="visible"
-            exit={direction === "up" ? "upExit" : "downExit"}
-            variants={slideVariants}
-            className="image h-full w-full absolute inset-0 object-cover object-center"
-          />
-        </AnimatePresence>
+      {imagesReady && (
+        <div className="absolute inset-0 h-full w-full">
+          {images.map((src, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: currentIndex === index ? 1 : 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="absolute inset-0 h-full w-full"
+              style={{ zIndex: currentIndex === index ? 2 : 1 }}
+            >
+              <Image
+                src={src}
+                alt={`Slide ${index}`}
+                fill
+                quality={90}
+                className="object-cover object-center"
+                sizes="100vw"
+                unoptimized
+              />
+            </motion.div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -1,11 +1,12 @@
 import uvicorn
 import logging
+from typing import List
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from src.generate import ResponseGenerator
+from src.generate import ResponseGenerator, ChatBot
 
 load_dotenv(dotenv_path="../.env")
 
@@ -27,6 +28,15 @@ class LLMInput(BaseModel):
     item: str
     db_data: dict
     context: str
+
+
+class HistoryItem(BaseModel):
+    text: str
+    sender: str
+
+
+class ChatInput(BaseModel):
+    history: List[HistoryItem]
 
 
 @app.post("/ai/generate")
@@ -73,6 +83,27 @@ async def generate_resonse(input_data: LLMInput) -> JSONResponse:
     )
     logger.info("Response generation successful")
     return JSONResponse(content=response, status_code=200)
+
+
+@app.post("/ai/chatbot")
+async def chatbot(request: ChatInput) -> JSONResponse:
+    try:
+        history = request.history
+        question = history[-1].text
+        history = history[:-1]
+
+        response = ChatBot().generate(
+            question=question,
+            history=history,
+        )
+
+        return JSONResponse(
+            content=response,
+            status_code=200
+        )
+    except Exception as e:
+        logger.error(f"Error in request: {e}")
+        return JSONResponse(content="Error in request", status_code=500)
 
 
 if __name__ == "__main__":
