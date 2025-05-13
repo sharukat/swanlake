@@ -18,7 +18,7 @@ export default function RootLayout({
           "[background-image:radial-gradient(#d4d4d4_1px,transparent_1px)]",
         )}
       />
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
       <p className="relative z-20 bg-gradient-to-b from-neutral-500 to-neutral-900 bg-clip-text py-8 text-4xl font-bold text-transparent sm:text-7xl">
         Dashboard
       </p>

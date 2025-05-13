@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.19.2",
     "@heroui/react": "^2.7.5",
     "@tabler/icons-react": "^3.31.0",
     "@types/markdown-it": "^14.1.2",

@@ -1,5 +1,4 @@
 import "../globals.css";
-import { Providers } from "../providers";
 import SidebarAdmin from "@/components/client/adminSidebar";
 
 export default function RootLayout({

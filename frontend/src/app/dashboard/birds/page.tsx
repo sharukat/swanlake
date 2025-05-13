@@ -46,15 +46,14 @@ export default function BirdsDashboard() {
       }}
     >
       <section
-        key="home"
-        className="w-full flex flex-col items-center justify-center px-auto mb-10"
+        className="w-full flex flex-col items-center justify-center px-auto mb-10 z-20"
       >
         <div className="grid gap-5 grid-cols-2">
           <AppCard imagePath="/bird.jpg" buttonName="Explore Birds" />
           <AppCard imagePath="/plant.jpg" buttonName="Explore Plants" />
         </div>
 
-        <div className="flex flex-col overflow-auto">
+        <div className="flex flex-col overflow-y-auto mt-5">
           {status && (
             <div className="flex flex-col items-center justify-center">
               <Spinner
